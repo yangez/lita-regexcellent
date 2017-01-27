@@ -1,5 +1,7 @@
 # lita-regexcellent
 
+Only compatible with Slack adapter. We use `slack-ruby-client` to get channel message history.
+
 
 ## Installation
 

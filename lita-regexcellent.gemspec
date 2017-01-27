@@ -16,6 +16,7 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency "lita", ">= 4.6"
   spec.add_runtime_dependency "chronic"
+  spec.add_runtime_dependency "slack-ruby-client"
 
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "pry-byebug"
