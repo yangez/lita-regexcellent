@@ -1,6 +1,7 @@
 module Lita
   module Handlers
     class Regexcellent < Handler
+      Lita.register_handler(self)
 
       route(
         /^count\s+\/(.+)\/(.*)/i,
@@ -12,39 +13,47 @@ module Lita
       )
 
       def count(response)
+        messages = fetch_slack_message_history(response)
+
         regex_string = response.matches.first.first
         regex = Regexp.new regex_string
 
-        options = {channel: response.room.id, count: 1000}
-
-        puts '--- response matches ---'
-        puts response.matches
-        puts '--- end response matches ---'
-
-        options_string = response.matches.last.last
-        if options_string && options_string.length > 0
-          to_string = options_string.match(/to:(\S+)/)
-          to = Chronic.parse to_string.try(:captures).try(:first).try(:tr, "_", " ") if to_string
-          options.merge!({oldest: 0, latest: to.utc.to_f}) if to
-
-          from_string = options_string.match(/from:(\S+)/)
-          from = Chronic.parse from_string.captures.first.tr("_", " ") if from_string
-          options.merge!({oldest: from.utc.to_f}) if from
-        end
-
-        puts '--- options ---'
-        puts options.inspect
-        puts '--- end options ---'
-
-        history = slack_client.channels_history(options)
-
-        count = history.messages.count{ |message| message.text.match regex }
+        count = messages.count{ |message| message.text.match regex }
         response.reply("Found #{count} results.")
       end
 
-      Lita.register_handler(self)
-
       protected
+
+      def fetch_slack_message_history(response)
+        messages = []
+        oldest = timestamp_for('from', response)
+        latest = timestamp_for('to', response)
+
+        loop do
+          options = {channel: response.room.id, count: 100, inclusive: 0}
+          options.merge!({oldest: oldest}) if oldest
+          options.merge!({latest: latest}) if latest
+
+          history = slack_client.channels_history( options )
+          messages.push(history.messages).flatten!
+
+          if history.has_more
+            latest = history.messages.last.ts
+          else
+            break
+          end
+        end
+        messages
+      end
+
+      def timestamp_for(type, response)
+        raise "unknown timestamp type" unless %w(to from).include? type
+        options_string = response.matches.last.last
+        return unless options_string && options_string.length > 0
+        time_string = options_string.match(/#{type}:(\S+)/)
+        time = Chronic.parse time_string.try(:captures).try(:first).try(:tr, "_", " ") if time_string
+        time.utc.to_f if time
+      end
 
       def slack_client
         @slack_client ||= ::Slack::Web::Client.new

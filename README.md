@@ -19,6 +19,8 @@ gem "lita-regexcellent"
 To use, issue the command (where `lita` is your robots name):
 
 ```
-lita count /regex/ from:yesterday to:today
+lita count /regex/ from:1_year_from_now to:today
 => 12 results found.
 ```
+
+`from` and `to` are both optional.
