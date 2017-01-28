@@ -38,7 +38,7 @@ module Lita
         loop do
           history = slack_client.channels_history({
             channel: response.room.id,
-            count: 100,
+            count: 1000,
             inclusive: 0,
             oldest: oldest,
             latest: latest
