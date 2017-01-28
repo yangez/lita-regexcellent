@@ -12,11 +12,11 @@ Counts the number of Slack messages that matches a regular expression in the cur
 To use, issue the command (where `lita` is your robots name):
 
 ```
-lita count /regex/ from:1_year_from_now to:today
+lita count /regex/ since:1_week_ago until:now
 => 12 results found.
 ```
 
-`from` and `to` are both optional.
+`since` and `until` are both optional. They default to the listed values.
 
 ## Running tests
 
