@@ -19,4 +19,8 @@ RSpec.describe Lita::Handlers::Regexcellent, :lita_handler => true do
       expect(replies.last).to eq "Found 0 results."
     end
   end
+
+  describe "#fetch_slack_message_history" do
+    it "will be tested"
+  end
 end
