@@ -3,12 +3,17 @@ module Lita
     class Regexcellent < Handler
       Lita.register_handler(self)
 
+      DEFAULT_RANGE = {
+        since: Chronic.parse("1 week ago").utc.to_f,
+        until: Chronic.parse("10 minutes from now").utc.to_f,
+      }
+
       route(
         /^count\s+\/(.+)\/(.*)/i,
         :count,
         :command => true,
         :help    => {
-          "count /REGEX/ from:1_year_ago to:yesterday" => "Counts number of regex matches in channel. 'from' and 'to' are optional"
+          "count /REGEX/ from:1_week_ago to:10_minutes_from_now" => "Counts number of regex matches in channel. 'from' and 'to' are optional (defaults shown)"
         }
       )
 
@@ -26,15 +31,18 @@ module Lita
 
       def fetch_slack_message_history(response)
         messages = []
-        oldest = timestamp_for('from', response)
-        latest = timestamp_for('to', response)
+
+        oldest = timestamp_for('from', response) || DEFAULT_RANGE[:since]
+        latest = timestamp_for('to', response) || DEFAULT_RANGE[:until]
 
         loop do
-          options = {channel: response.room.id, count: 100, inclusive: 0}
-          options.merge!({oldest: oldest}) if oldest
-          options.merge!({latest: latest}) if latest
-
-          history = slack_client.channels_history( options )
+          history = slack_client.channels_history({
+            channel: response.room.id,
+            count: 100,
+            inclusive: 0,
+            oldest: oldest,
+            latest: latest
+          })
           messages.push(history.messages).flatten!
 
           if history.has_more
