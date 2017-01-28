@@ -8,7 +8,7 @@ module Lita
         :count,
         :command => true,
         :help    => {
-          "count /REGEX/" => "Counts number of regex matches in channel"
+          "count /REGEX/ from:1_year_ago to:yesterday" => "Counts number of regex matches in channel. 'from' and 'to' are optional"
         }
       )
 

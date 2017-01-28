@@ -1,18 +1,11 @@
 # lita-regexcellent
 
-Only compatible with Slack adapter. We use `slack-ruby-client` to get channel message history.
-
+Counts the number of Slack messages that matches a regular expression in the current channel. Only compatible with the Slack adapter.
 
 ## Installation
 
-Add lita-regexcellent to your Lita instance's Gemfile:
-
-``` ruby
-gem "lita-regexcellent"
-```
-
-## Configuration
-
+1. Add gem to your Lita instance: `gem "lita-regexcellent"`
+2. Set SLACK_TOKEN if not already set: `heroku config:set SLACK_TOKEN=$token`
 
 ## Usage
 
