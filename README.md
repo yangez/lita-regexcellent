@@ -17,3 +17,8 @@ lita count /regex/ from:1_year_from_now to:today
 ```
 
 `from` and `to` are both optional.
+
+## Running tests
+
+1. Make sure Redis is running locally
+2. `rspec spec`
