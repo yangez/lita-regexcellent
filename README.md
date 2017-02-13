@@ -13,10 +13,12 @@ To use, issue the command (where `lita` is your robots name):
 
 ```
 lita count /regex/ since:1_week_ago until:now
-=> 12 results found.
+=> Found 12 results for /regex/ since 1 week ago until now.
 ```
 
-`since` and `until` are both optional. They default to the listed values.
+`since` and `until` are both optional and default to the listed values.
+
+The search will also skip over previous queries (`lita count /regex/`) and previous bot responses (`Found 12 results for...`).
 
 ## Running tests
 

@@ -8,6 +8,10 @@ module Lita
         since: "1 week ago",
         until: "now"
       }
+      MESSAGES = {
+        found: "Found %{count} results for */%{regex_string}/* since *%{oldest}* until *%{latest}*.",
+        invalid_time_format: "Couldn't understand `since:%{oldest} until:%{latest}`."
+      }
 
       route(
         /^count\s+(\S+)(.*)/i,
@@ -19,19 +23,25 @@ module Lita
       )
 
       def count(response)
-        oldest = time_string_for('since', response) || DEFAULT_RANGE[:since]
-        latest = time_string_for('until', response) || DEFAULT_RANGE[:until]
-
-        regex_string = response.matches.first.first.tr('/', '')
-        regex = Regexp.new regex_string
+        data = {
+          oldest: time_string_for('since', response) || DEFAULT_RANGE[:since],
+          latest: time_string_for('until', response) || DEFAULT_RANGE[:until],
+          regex_string: response.matches.first.first.tr('/', '')
+        }
 
         begin
-          messages = fetch_slack_message_history(response.room.id, oldest, latest)
-          count = messages.count{ |message| message.text.match regex }
-          response.reply("Found #{count} results for */#{regex_string}/* since *#{oldest}* until *#{latest}*.")
+          messages = fetch_slack_message_history(response.room.id, data[:oldest], data[:latest])
+          regex = Regexp.new data[:regex_string]
+          reply = MESSAGES[:found] % data.merge({
+            count: count_messages(messages, regex)
+          })
         rescue InvalidTimeFormatError
-          response.reply("Couldn't understand `since:#{oldest.tr(" ", "_")} until:#{latest.tr(" ", "_")}`.")
+          reply = MESSAGES[:invalid_time_format] % {
+            oldest: data[:oldest].tr(" ", "_"),
+            latest: data[:latest].tr(" ", "_")
+          }
         end
+        response.reply(reply)
       end
 
       protected
@@ -59,6 +69,14 @@ module Lita
         messages
       end
 
+      def count_messages(messages, regex)
+        messages.count do |message|
+          next if message.user == robot_user_id # skip messages from self
+          next if message.text.match(/^@?#{robot.mention_name}\scount.*/i) # skip `bot count` queries
+          message.text.match regex
+        end
+      end
+
       def time_string_for(type, response)
         raise "unknown time string type" unless %w(since until).include? type
         options_string = response.matches.last.last
@@ -73,6 +91,13 @@ module Lita
 
         # slack API can only handle 6 digits, otherwise it bugs out
         sprintf("%0.06f", parsed_string.utc.to_f)
+      end
+
+      # couldn't find a direct way to get robot user id (e.g. robot.user_id)
+      # so instead we use the method that `lita users find [name]` uses:
+      # https://github.com/litaio/lita-default-handlers/blob/master/lib/lita/handlers/users.rb
+      def robot_user_id
+        robot_id = User.fuzzy_find(robot.mention_name).id
       end
 
       def slack_client
