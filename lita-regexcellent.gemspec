@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = "lita-regexcellent"
-  spec.version       = "0.1.1"
+  spec.version       = "0.1.2"
   spec.authors       = ["Eric Yang"]
   spec.email         = ["eyang232@gmail.com"]
   spec.description   = "Search and parse through Slack channel history with regex"
