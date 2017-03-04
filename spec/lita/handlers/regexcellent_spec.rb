@@ -25,7 +25,7 @@ RSpec.describe Lita::Handlers::Regexcellent, :lita_handler => true do
 
     it "responds with a count" do
       send_message("Lita count regex")
-      expect(replies.last).to match /Found 0 results for \*\/regex\/\* since \*1 week ago\* until \*now\*\./
+      expect(replies.last).to match /Found 0 results for `\/regex\/` since \*1 week ago\* until \*now\*\./
     end
 
     context "when there are messages from itself" do
@@ -54,7 +54,7 @@ RSpec.describe Lita::Handlers::Regexcellent, :lita_handler => true do
     context "when regex is formatted as /regex/" do
       it "responds with a count" do
         send_message("lita count /regex/")
-        expect(replies.last).to match /Found 0 results for \*\/regex\/\* since \*1 week ago\* until \*now\*\./
+        expect(replies.last).to match /Found 0 results for `\/regex\/` since \*1 week ago\* until \*now\*\./
       end
     end
   end
