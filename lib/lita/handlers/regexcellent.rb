@@ -9,7 +9,7 @@ module Lita
         until: "now"
       }
       MESSAGES = {
-        found: "Found %{count} results for */%{regex_string}/* since *%{oldest}* until *%{latest}*.",
+        found: "Found %{count} results for `/%{regex_string}/` since *%{oldest}* until *%{latest}*.",
         invalid_time_format: "Couldn't understand `since:%{oldest} until:%{latest}`."
       }
 
